@@ -27,6 +27,11 @@ public class Hero : MonoBehaviour {
     // Create a WeaponFireDelegate field named fireDelegate.
     public WeaponFireDelegate fireDelegate;
 
+    [Header("Weapon Switching")]
+    public float weaponSwitchCooldown = 2f; // set default cooldown value to 2 seconds
+    private float nextWeaponSwitchTime = 0f;
+    private WeaponType previousWeaponType = WeaponType.none;
+
 	void Start()
     {
         if (S == null)
@@ -67,7 +72,24 @@ public class Hero : MonoBehaviour {
         {
             fireDelegate();
         }
+            if (Input.GetKeyDown(KeyCode.X) && Time.time > nextWeaponSwitchTime)
+    {
+        SwitchWeapon();
+        nextWeaponSwitchTime = Time.time + weaponSwitchCooldown;
     }
+    }
+
+    void SwitchWeapon()
+{
+    // If there is no previous weapon, do nothing
+    if (previousWeaponType == WeaponType.none) return;
+
+    // Swap current weapon with previous
+    WeaponType currentWeapon = weapons[0].type;
+    ClearWeapons();
+    weapons[0].SetType(previousWeaponType);
+    previousWeaponType = currentWeapon;
+}
 
     private void OnTriggerEnter(Collider other)
     {
@@ -120,6 +142,7 @@ public class Hero : MonoBehaviour {
                 else
                 {
                     //If this is a different weapon type
+                    previousWeaponType = weapons[0].type;
                     ClearWeapons();
                     weapons[0].SetType(pu.type);
                 }
